@@ -41,7 +41,7 @@ class Board
   end
 
   def game_over?
-    lines = [ [0,1,2], [3,4,5], [6,7,8], [0,3,8], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
+    lines = [ [0,1,2], [3,4,5], [6,7,8], [0,3,6], [1,4,7], [2,5,8], [0,4,8], [2,4,6]]
     lines.each do |line|
       a,b,c = line
       next if @board[a] == "_"
@@ -51,7 +51,7 @@ class Board
       end
     end
     if @board.select { |x| x == "_" }.size == 0 
-      @winner = "-"
+      @winner = "_"
       return true
     end
     false
@@ -73,8 +73,7 @@ class AI
   def initialize(marker, maxPly = -1)
     @maxPly = maxPly
     @marker = marker
-    if marker == "X" then @opponent = "O" end
-    if marker == "O" then @opoonent = "X" end
+    if marker == "X" then @opponent = "O"  else @opponent = "X" end
   end
   
   def calc_move(board)
@@ -86,17 +85,18 @@ class AI
     best_score = nil
     best_move = nil
     possible_moves = calculate_possible_moves(board)
-    possible_moves.each do |move|
-      board.set_marker(move, @marker)
+    possible_moves.each do |m|
+      board.set_marker(m, @marker)
       if ply == 0 or board.game_over?
         score = score_board(board)
       else
-        m, score = min(board, ply-1)
+        move, score = min(board, ply-1)
       end
       board.undo
-      if (best_score.nil?) or (score < best_score)
+      
+      if (best_score.nil?) or (score > best_score)
         best_score = score
-        best_move = move
+        best_move = m
       end
     end
     [best_move, best_score]
@@ -106,17 +106,17 @@ class AI
     best_score = nil
     best_move = nil
     possible_moves = calculate_possible_moves(board)
-    possible_moves.each do |move|
-      board.set_marker(move, @marker)
+    possible_moves.each do |m|
+      board.set_marker(m, @opponent)
       if ply == 0 or board.game_over?
         score = score_board(board)
       else
-        m, score = max(board, ply-1)
+        move, score = max(board, ply-1)
       end
       board.undo
       if (best_score.nil?) or (score < best_score)
         best_score = score
-        best_move = move
+        best_move = m
       end
     end
     [best_move, best_score]
@@ -136,10 +136,13 @@ end
 
 
 def next_move(player,board)
-    the_player = AI.new(player)
+    if player == "X"
+      the_player = AI.new(player)
+    else
+      the_player = AI.new(player, 1)
+    end
     id = the_player.calc_move(board)
-    board.set_marker(id, the_player.marker)
-	  x = (id / 3)
+    x = (id / 3)
     y = (id % 3)
     print "#{x} #{y}"
 end
