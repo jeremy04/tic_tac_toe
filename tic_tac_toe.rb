@@ -76,8 +76,16 @@ class AI
     if marker == "X" then @opponent = "O"  else @opponent = "X" end
   end
   
+  def first_move?(board)
+    board.reject { |x| x == "_" }.size == 1
+  end
+  
   def calc_move(board)
-    move, score = max(board, @maxPly)
+    if @maxPly == 1 and first_move?(board.board) and board.board[4] == "_"
+      move = 4
+    else
+      move, score = max(board, @maxPly)
+    end
     move
   end
   

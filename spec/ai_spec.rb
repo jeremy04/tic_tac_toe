@@ -13,6 +13,15 @@ describe AI do
     board.set_board_data(state.flatten)
     ai.calc_move(board).should == 6
   end
+  
+  it "first move should be center if its not already taken and I'm the 2nd player" do
+    state = [ ['X', '_', '_'],
+              ['_', '_', '_'],
+              ['_', '_', '_']]
+    board.set_board_data(state.flatten)
+    ai.calc_move(board).should == 4
+  end
+
 end
 
 
