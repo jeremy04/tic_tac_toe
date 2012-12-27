@@ -81,11 +81,7 @@ class AI
   end
   
   def calc_move(board)
-    if @maxPly == 1 and first_move?(board.board) and board.board[4] == "_"
-      move = 4
-    else
-      move, score = max(board, @maxPly)
-    end
+    move, score = max(board, @maxPly)
     move
   end
   
@@ -96,12 +92,11 @@ class AI
     possible_moves.each do |m|
       board.set_marker(m, @marker)
       if ply == 0 or board.game_over?
-        score = score_board(board)
+        score = score_board(board.dup)
       else
-        move, score = min(board, ply-1)
+        move, score = min(board.dup, ply-1)
       end
       board.undo
-      
       if (best_score.nil?) or (score > best_score)
         best_score = score
         best_move = m
@@ -113,14 +108,15 @@ class AI
   def min(board, ply)
     best_score = nil
     best_move = nil
-    possible_moves = calculate_possible_moves(board)
+    possible_moves = calculate_possible_moves(board.dup)
     possible_moves.each do |m|
       board.set_marker(m, @opponent)
       if ply == 0 or board.game_over?
-        score = score_board(board)
+        score = score_board(board.dup)
       else
-        move, score = max(board, ply-1)
+        move, score = max(board.dup, ply-1)
       end
+      
       board.undo
       if (best_score.nil?) or (score < best_score)
         best_score = score
@@ -145,15 +141,18 @@ end
 
 def next_move(player,board)
     if player == "X"
-      the_player = AI.new(player)
+      players = [ AI.new("X"), AI.new("O") ]
+      player = players[0]
     else
-      the_player = AI.new(player, 1)
+      players = [ AI.new("X"), AI.new("O") ]
+      player = players[1]
     end
-    id = the_player.calc_move(board)
-    x = (id / 3)
-    y = (id % 3)
+    best_move = player.calc_move(board)
+    x = (best_move / 3)
+    y = (best_move % 3)
     print "#{x} #{y}"
 end
+
 #If player is X, I'm the first player.
 #If player is O, I'm the second player.
 player = gets.chomp
